@@ -8,5 +8,6 @@ public interface View {
 	void start();
 	void setCLI(HashMap<String, Command> commands);
 	void display(String message);
+	void doCommand(Command command, String[] args);
 	
 }

@@ -6,8 +6,8 @@ import model.Model;
 import view.View;
 
 public class MyController implements Controller {
-	Model m;
-	View v;
+	private Model m;
+	private View v;
 	private HashMap<String, Command> commands;
 	
 	public MyController() {
@@ -23,7 +23,7 @@ public class MyController implements Controller {
 		this.v.setCLI(commands);
 	}
 	
-	public void setCommands() {
+	private void setCommands() {
 		commands = new HashMap<String, Command>();
 		commands.put("dir", new DirCommand());
 		commands.put("generate3dMaze", new Generate3dMazeCommand());
@@ -40,6 +40,12 @@ public class MyController implements Controller {
 	@Override
 	public void display(String message) {
 		v.display(message);
+		
+	}
+	
+	@Override
+	public void doCommand(Command command, String[] args) {
+		command.doCommand(args);
 		
 	}
 	
@@ -61,7 +67,7 @@ public class MyController implements Controller {
 		@Override
 		public void doCommand(String[] args) {
 			if (args.length == 4)
-				m.generate3dMaze(args[0], Integer.valueOf(args[1]).intValue(), Integer.valueOf(args[2]).intValue(), Integer.valueOf(args[3]).intValue());
+				m.generate3dMaze(args[0], Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]));
 			else
 				v.display("invalid parameters, please enter a maze name and 3 dimensions");
 			
@@ -87,7 +93,7 @@ public class MyController implements Controller {
 		@Override
 		public void doCommand(String[] args) {
 			if (args.length == 3)
-				m.displayCrossSection(args[0].charAt(0), Integer.valueOf(args[1]).intValue(), args[2]);
+				m.displayCrossSection(args[0].charAt(0), Integer.parseInt(args[1]), args[2]);
 			else
 				v.display("invalid parameters, please enter an axis, an index and a maze name");
 			
@@ -169,6 +175,5 @@ public class MyController implements Controller {
 		}
 		
 	}
-
 
 }

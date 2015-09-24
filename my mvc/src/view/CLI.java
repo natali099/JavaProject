@@ -8,11 +8,13 @@ import java.util.HashMap;
 import controller.Command;
 
 public class CLI {
+	private View v;
 	private BufferedReader in;
 	private PrintWriter out;
 	private HashMap<String, Command> commands;
 	
-	public CLI(BufferedReader in, PrintWriter out, HashMap<String, Command> commands) {
+	public CLI(View v, BufferedReader in, PrintWriter out, HashMap<String, Command> commands) {
+		this.v = v;
 		this.in = in;
 		this.out = out;
 		this.commands = commands;
@@ -33,15 +35,15 @@ public class CLI {
 							for (int i=0; i<args.length; i++) {
 								args[i] = line[i+1];
 							}
-							commands.get(command).doCommand(args);
+							v.doCommand(commands.get(command), args);
 						}
 						else
-							display("\""+command+"\" command is illegal");
+							display("\"" + command + "\" command is illegal");
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				
+				display("CLI ended");
 			}
 		}).start();
 	}

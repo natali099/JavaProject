@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import algorithms.demo.SearchableMaze;
 import algorithms.mazeGenerators.Maze3d;
@@ -24,27 +24,30 @@ import algorithms.search.Solution;
 import controller.Controller;
 
 public class MyModel implements Model {
-	Controller c;
-	private HashMap<String, Maze3d> mazes;
-	private HashMap<String, String> mazesFiles;
-	private HashMap<String, Solution<Position>> mazesSolutions;
+	private Controller c;
+	private ConcurrentHashMap<String, Maze3d> mazes;
+	private ConcurrentHashMap<String, String> mazesFiles;
+	private ConcurrentHashMap<String, Solution<Position>> mazesSolutions;
 	
 	public MyModel (Controller c) {
 		this.c = c;
-		this.mazes = new HashMap<String, Maze3d>();
-		this.mazesFiles = new HashMap<String, String>();
-		this.mazesSolutions = new HashMap<String, Solution<Position>>();
+		this.mazes = new ConcurrentHashMap<String, Maze3d>();
+		this.mazesFiles = new ConcurrentHashMap<String, String>();
+		this.mazesSolutions = new ConcurrentHashMap<String, Solution<Position>>();
 	}
 
 	@Override
 	public void dir(String path) {
 		String[] files = new File(path).list();
-		StringBuilder sb = new StringBuilder();
-		for (int i=0; i<files.length; i++) {
-			sb.append(files[i]);
-			sb.append("\n");
+		if (files != null) {
+			StringBuilder sb = new StringBuilder();
+			for (String file : files) {
+				sb.append(file + "\n");
+			}
+			c.display(sb.toString());
 		}
-		c.display(sb.toString());
+		else
+			c.display("path \"" + path + "\" is invalid");
 	}
 	
 	@Override
@@ -59,10 +62,8 @@ public class MyModel implements Model {
 					try {
 						Maze3d maze = new MyMaze3dGenerator().generate(x, y, z);
 						mazes.put(mazeName, maze);
-						c.display("maze \"" + mazeName + "\" is ready");
-						
+						c.display("maze \"" + mazeName + "\" is ready");						
 					} catch (Exception e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
@@ -75,8 +76,7 @@ public class MyModel implements Model {
 		if (mazes.containsKey(mazeName))
 			c.display(mazes.get(mazeName).toString());
 		else
-			c.display("maze \"" + mazeName + "\" does not exist");
-		
+			c.display("maze \"" + mazeName + "\" does not exist");		
 	}
 
 	@Override
@@ -84,26 +84,32 @@ public class MyModel implements Model {
 		if (mazes.containsKey(mazeName)) {
 			if (index > 0) {
 				Maze3d maze = mazes.get(mazeName);
-				if (axis == 'X' || axis == 'x') {
+				
+				switch (axis) {
+				case 'X':
+				case 'x':
 					if (index <= maze.getX())
 						c.display(maze.printCrossSection(maze.getCrossSectionByX(index-1)));
 					else
 						c.display("index should not be larger than " + maze.getX());
-				}
-				else if (axis == 'Y' || axis == 'y') {
+					break;
+				case 'Y':
+				case 'y':
 					if (index <= maze.getY())
 						c.display(maze.printCrossSection(maze.getCrossSectionByY(index-1)));
 					else
 						c.display("index should not be larger than " + maze.getY());
-				}
-				else if (axis == 'Z' || axis == 'z') {
+					break;
+				case 'Z':
+				case 'z':
 					if (index <= maze.getZ())
 						c.display(maze.printCrossSection(maze.getCrossSectionByZ(index-1)));
 					else
 						c.display("index should not be larger than " + maze.getZ());
-				}
-				else
+					break;
+				default:
 					c.display("axis invalid, please type X or Y or Z");
+				}
 			}
 			else
 				c.display("index should not be smaller than 1");
@@ -120,29 +126,26 @@ public class MyModel implements Model {
 				out.write(mazes.get(mazeName).toByteArray());
 				out.flush();
 				out.close();
-				mazesFiles.put(fileName, mazeName);
+				mazesFiles.put(mazeName, fileName);
 				c.display("maze \"" + mazeName + "\" was saved successfully");
 			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
 		}
 		else
-			c.display("maze \"" + mazeName + "\" does not exist");
-		
+			c.display("maze \"" + mazeName + "\" does not exist");		
 	}
 
 	@Override
 	public void loadMaze(String fileName, String mazeName) {
 		if (mazes.containsKey(mazeName))
 			c.display("maze \"" + mazeName + "\" already exists, please choose a different name");
-		else if (mazesFiles.containsKey(fileName)) {
+		else if (mazesFiles.containsValue(fileName)) {
 			try {
 				InputStream in = new MyDecompressorInputStream(new FileInputStream(fileName + ".maz"));
+				//read the size of the maze and create an array with appropriate size
 				byte[] mazeSizes = new byte[12];
 				in.read(mazeSizes);
 				in.close();
@@ -156,17 +159,13 @@ public class MyModel implements Model {
 				mazes.put(mazeName, maze);
 				c.display("maze \"" + mazeName + "\" was loaded successfully");
 			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
-			
+			}			
 		}
 		else
-			c.display("file name \"" + fileName + "\" does not exist");
-		
+			c.display("file name \"" + fileName + "\" does not exist");		
 	}
 
 	@Override
@@ -177,31 +176,35 @@ public class MyModel implements Model {
 			c.display(size + " bytes");			
 		}
 		else
-			c.display("maze \"" + mazeName + "\" does not exist");
-		
+			c.display("maze \"" + mazeName + "\" does not exist");		
 	}
 
 	@Override
-	public void fileSize(String mazeName) {
+	public void fileSize(String mazeName) { //check if should contain a file for this maze
 		if (mazes.containsKey(mazeName)) {
-			try {
-				OutputStream out = new MyCompressorOutputStream(new FileOutputStream("test.maz"));
-				out.write(mazes.get(mazeName).toByteArray());
-				out.flush();
-				out.close();
-				File file = new File("test.maz");
+			//if this maze is already saved in a file
+			if (mazesFiles.containsKey(mazeName)) {
+				File file = new File(mazesFiles.get(mazeName) + ".maz");
 				c.display(file.length() + " bytes");
-			} catch (FileNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			}
+			else {
+				try {
+					//create a test file to check its size
+					OutputStream out = new MyCompressorOutputStream(new FileOutputStream("testfilename.maz"));
+					out.write(mazes.get(mazeName).toByteArray());
+					out.flush();
+					out.close();
+					File file = new File("testfilename.maz");
+					c.display(file.length() + " bytes");
+				} catch (FileNotFoundException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 		else
-			c.display("maze \"" + mazeName + "\" does not exist");
-		
+			c.display("maze \"" + mazeName + "\" does not exist");		
 	}
 
 	@Override
@@ -214,17 +217,20 @@ public class MyModel implements Model {
 					Maze3d maze = mazes.get(mazeName);
 					Solution<Position> sol;
 					
-					if (algorithm.equals("bfs") || algorithm.equals("BFS")) {
+					switch (algorithm) {
+					case "bfs":
+					case "BFS":
 						BFS<Position> bfs = new BFS<Position>();
 						sol = bfs.search(new SearchableMaze(maze));
-					}
-					else if (algorithm.equals("a*") || algorithm.equals("A*")) {
-						AStar<Position> astar = new AStar<>(new MazeAirDistance());
+						break;
+					case "a*":
+					case "A*":
+						AStar<Position> astar = new AStar<Position>(new MazeAirDistance());
 						sol = astar.search(new SearchableMaze(maze));
-					}
-					else {
+						break;
+					default:
 						c.display("algorithm \"" + algorithm + "\" does not exist");
-						return;
+						return;					
 					}
 					mazesSolutions.put(mazeName, sol);
 					c.display("solution for \"" + mazeName + "\" is ready");
