@@ -1,5 +1,14 @@
 package controller;
 
+/**
+ * The Interface Command.
+ */
 public interface Command {
-	void doCommand (String[] args);
+	
+	/**
+	 * Do command.
+	 *
+	 * @param args the parameters for the task
+	 */
+	void doCommand(String[] args);
 }

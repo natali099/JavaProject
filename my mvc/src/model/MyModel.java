@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
+import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 import algorithms.demo.SearchableMaze;
@@ -23,20 +24,125 @@ import algorithms.search.MazeAirDistance;
 import algorithms.search.Solution;
 import controller.Controller;
 
+/**
+ * The Class MyModel.
+ */
 public class MyModel implements Model {
+	
+	/** The controller. */
 	private Controller c;
+	
+	/** The mazes hash map. */
 	private ConcurrentHashMap<String, Maze3d> mazes;
-	private ConcurrentHashMap<String, String> mazesFiles;
+	
+	/** The mazes-files hash map. */
+	private HashMap<String, String> mazesFiles;
+	
+	/** The mazes-solutions hash map. */
 	private ConcurrentHashMap<String, Solution<Position>> mazesSolutions;
 	
+	/**
+	 * Instantiates a new my model.
+	 *
+	 * @param c the controller
+	 */
 	public MyModel (Controller c) {
 		this.c = c;
 		this.mazes = new ConcurrentHashMap<String, Maze3d>();
-		this.mazesFiles = new ConcurrentHashMap<String, String>();
+		this.mazesFiles = new HashMap<String, String>();
 		this.mazesSolutions = new ConcurrentHashMap<String, Solution<Position>>();
 	}
-
+	
+	/**
+	 * Runs the method represented by the received command.
+	 * For each command, if invalid parameters were sent, displays a message to the controller.
+	 *
+	 * @param command the method to be run
+	 * @param args the parameters to be passed to the method
+	 * @see model.Model#doCommand(java.lang.String, java.lang.String[])
+	 */
 	@Override
+	public void doCommand(String command, String[] args) {
+		switch (command) {
+		
+		case "dir":
+			if (args.length == 1)
+				dir(args[0]);
+			else
+				c.display("invalid parameters, please enter a path");
+			break;
+			
+		case "generate":
+			if (args.length == 4)
+				generate3dMaze(args[0], Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]));
+			else
+				c.display("invalid parameters, please enter a maze name and 3 dimensions");
+			break;
+			
+		case "display":
+			if (args.length == 1)
+				displayMaze(args[0]);
+			else
+				c.display("invalid parameters, please enter a maze name");
+			break;
+			
+		case "cross":
+			if (args.length == 3)
+				displayCrossSection(args[0].charAt(0), Integer.parseInt(args[1]), args[2]);
+			else
+				c.display("invalid parameters, please enter an axis, an index and a maze name");
+			break;
+			
+		case "save":
+			if (args.length == 2)
+				saveMaze(args[0], args[1]);
+			else
+				c.display("invalid parameters, please enter a maze name and a file name");
+			break;
+			
+		case "load":
+			if (args.length == 2)
+				loadMaze(args[0], args[1]);
+			else
+				c.display("invalid parameters, please enter a file name and a maze name");
+			break;
+			
+		case "maze size":
+			if (args.length == 1)
+				mazeSize(args[0]);
+			else
+				c.display("invalid parameters, please enter a maze name");
+			break;
+		
+		case "file size":
+			if (args.length == 1)
+				fileSize(args[0]);
+			else
+				c.display("invalid parameters, please enter a maze name");
+			break;
+			
+		case "solve":
+			if (args.length == 2)
+				solveMaze(args[0], args[1]);
+			else
+				c.display("invalid parameters, please enter a maze name and an algorithm");
+			break;
+			
+		case "solution":
+			if (args.length == 1)
+				displaySolution(args[0]);
+			else
+				c.display("invalid parameters, please enter a maze name");
+			break;		
+		}
+		
+	}
+
+	/**
+	 * Displays all files and directories in the given path.
+	 *
+	 * @param path the path
+	 */
 	public void dir(String path) {
 		String[] files = new File(path).list();
 		if (files != null) {
@@ -50,7 +156,15 @@ public class MyModel implements Model {
 			c.display("path \"" + path + "\" is invalid");
 	}
 	
-	@Override
+	/**
+	 * Generates a 3d maze in a thread and adds it to mazes hash map under the given name.
+	 * If a maze with the given name already exists, displays a message to the controller.
+	 *
+	 * @param mazeName the maze name
+	 * @param x the number of rows
+	 * @param y the number of floors
+	 * @param z the number of columns
+	 */
 	public void generate3dMaze(String mazeName, int x, int y, int z) {
 		if (mazes.containsKey(mazeName))
 			c.display("maze \"" + mazeName + "\" already exists, please choose a different name");
@@ -71,7 +185,11 @@ public class MyModel implements Model {
 		}
 	}
 
-	@Override
+	/**
+	 * Displays the maze with the given name, if it exists.
+	 *
+	 * @param mazeName the maze name
+	 */
 	public void displayMaze(String mazeName) {
 		if (mazes.containsKey(mazeName))
 			c.display(mazes.get(mazeName).toString());
@@ -79,7 +197,13 @@ public class MyModel implements Model {
 			c.display("maze \"" + mazeName + "\" does not exist");		
 	}
 
-	@Override
+	/**
+	 * Displays cross section by the given axis and index.
+	 *
+	 * @param axis the axis
+	 * @param index the index
+	 * @param mazeName the maze name
+	 */
 	public void displayCrossSection(char axis, int index, String mazeName) {
 		if (mazes.containsKey(mazeName)) {
 			if (index > 0) {
@@ -118,7 +242,12 @@ public class MyModel implements Model {
 			c.display("maze \"" + mazeName + "\" does not exist");
 	}
 
-	@Override
+	/**
+	 * Saves the maze to a file under the given file name and adds it to mazes-files hash map.
+	 *
+	 * @param mazeName the maze name
+	 * @param fileName the file name
+	 */
 	public void saveMaze(String mazeName, String fileName) {
 		if (mazes.containsKey(mazeName)) {
 			try {
@@ -138,7 +267,12 @@ public class MyModel implements Model {
 			c.display("maze \"" + mazeName + "\" does not exist");		
 	}
 
-	@Override
+	/**
+	 * Loads the maze from the file fileName and adds it to mazes hash map under the given name.
+	 *
+	 * @param fileName the file name
+	 * @param mazeName the maze name
+	 */
 	public void loadMaze(String fileName, String mazeName) {
 		if (mazes.containsKey(mazeName))
 			c.display("maze \"" + mazeName + "\" already exists, please choose a different name");
@@ -168,7 +302,11 @@ public class MyModel implements Model {
 			c.display("file name \"" + fileName + "\" does not exist");		
 	}
 
-	@Override
+	/**
+	 * Displays the maze size in memory.
+	 *
+	 * @param mazeName the maze name
+	 */
 	public void mazeSize(String mazeName) {
 		if (mazes.containsKey(mazeName)) {
 			Maze3d maze = mazes.get(mazeName);
@@ -179,7 +317,12 @@ public class MyModel implements Model {
 			c.display("maze \"" + mazeName + "\" does not exist");		
 	}
 
-	@Override
+	/**
+	 * Displays the maze size in file.
+	 * If a file for this maze name doesn't exist, creates a temporary file
+	 *
+	 * @param mazeName the maze name
+	 */
 	public void fileSize(String mazeName) { //check if should contain a file for this maze
 		if (mazes.containsKey(mazeName)) {
 			//if this maze is already saved in a file
@@ -207,7 +350,12 @@ public class MyModel implements Model {
 			c.display("maze \"" + mazeName + "\" does not exist");		
 	}
 
-	@Override
+	/**
+	 * Solves the maze using the given algorithm.
+	 *
+	 * @param mazeName the maze name
+	 * @param algorithm the algorithm
+	 */
 	public void solveMaze(String mazeName, String algorithm) {
 		if (mazes.containsKey(mazeName)) {
 			new Thread(new Runnable() {
@@ -241,7 +389,11 @@ public class MyModel implements Model {
 			c.display("maze \"" + mazeName + "\" does not exist");
 	}
 
-	@Override
+	/**
+	 * Displays the solution for the maze.
+	 *
+	 * @param mazeName the maze name
+	 */
 	public void displaySolution(String mazeName) {
 		if (mazes.containsKey(mazeName)) {
 			if (mazesSolutions.containsKey(mazeName))

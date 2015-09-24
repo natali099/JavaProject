@@ -1,14 +1,16 @@
 package model;
 
+/**
+ * The Interface Model.
+ */
 public interface Model {
-	void dir(String path);
-	void generate3dMaze(String mazeName, int x, int y, int z);
-	void displayMaze(String mazeName);
-	void displayCrossSection(char axis, int index, String mazeName);
-	void saveMaze(String mazeName, String fileName);
-	void loadMaze(String fileName, String mazeName);
-	void mazeSize(String mazeName);
-	void fileSize(String mazeName);
-	void solveMaze(String mazeName, String algorithm);
-	void displaySolution(String mazeName);
+	
+	/**
+	 * Runs the method represented by the received command.
+	 *
+	 * @param command the command, represented by a string
+	 * @param args the parameters to be passed to the received method
+	 */
+	void doCommand(String command, String[] args);
+	
 }

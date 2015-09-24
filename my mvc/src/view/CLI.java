@@ -7,12 +7,31 @@ import java.util.HashMap;
 
 import controller.Command;
 
+/**
+ * The Class CLI.
+ */
 public class CLI {
+	
+	/** The view which this CLI belongs to. */
 	private View v;
+	
+	/** The input. */
 	private BufferedReader in;
+	
+	/** The output. */
 	private PrintWriter out;
+	
+	/** The commands hash map. */
 	private HashMap<String, Command> commands;
 	
+	/**
+	 * Instantiates a new cli.
+	 *
+	 * @param v the view
+	 * @param in the input
+	 * @param out the output
+	 * @param commands the commands hash map
+	 */
 	public CLI(View v, BufferedReader in, PrintWriter out, HashMap<String, Command> commands) {
 		this.v = v;
 		this.in = in;
@@ -20,6 +39,10 @@ public class CLI {
 		this.commands = commands;
 	}
 
+	/**
+	 * Starts CLI in a thread.
+	 * Reads commands from the input and runs doCommand method in the view until receiving "exit" command.
+	 */
 	public void start() {
 		new Thread(new Runnable() {
 			
@@ -48,6 +71,11 @@ public class CLI {
 		}).start();
 	}
 	
+	/**
+	 * Prints the given message to the output.
+	 *
+	 * @param message the message
+	 */
 	public void display(String message) {
 		out.println(message);
 		out.flush();
