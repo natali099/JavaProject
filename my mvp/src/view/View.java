@@ -1,6 +1,6 @@
 package view;
 
-import controller.Command;
+import presenter.Command;
 
 public interface View {
 
@@ -17,10 +17,10 @@ public interface View {
 	void display(byte[] data);
 	
 	/**
-	 * Runs doCommand method in the controller.
+	 * Notifies the observers with the arguments received.
 	 *
 	 * @param command the command to be done
-	 * @param args the parameters to be passed to the received command
+	 * @param args the parameters to be passed to the observers
 	 */
 	void doCommand(Command command, String[] args);
 }
