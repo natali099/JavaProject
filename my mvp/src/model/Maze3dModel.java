@@ -1,8 +1,5 @@
 package model;
 
-import io.MyCompressorOutputStream;
-import io.MyDecompressorInputStream;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -13,7 +10,11 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Observable;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import algorithms.demo.SearchableMaze;
 import algorithms.mazeGenerators.Maze3d;
@@ -23,6 +24,8 @@ import algorithms.search.AStar;
 import algorithms.search.BFS;
 import algorithms.search.MazeAirDistance;
 import algorithms.search.Solution;
+import io.MyCompressorOutputStream;
+import io.MyDecompressorInputStream;
 
 /**
  * The Class Maze3dModel.
@@ -39,6 +42,8 @@ public class Maze3dModel extends Observable implements Model {
 	
 	/** The mazes-solutions hash map. */
 	private ConcurrentHashMap<String, Solution<Position>> mazesSolutions;
+	
+	private ExecutorService threadpool;
 
 	/**
 	 * Instantiates a new maze3d model.
@@ -47,6 +52,7 @@ public class Maze3dModel extends Observable implements Model {
 		this.mazes = new ConcurrentHashMap<String, Maze3d>();
 		this.mazesFiles = new HashMap<String, String>();
 		this.mazesSolutions = new ConcurrentHashMap<String, Solution<Position>>();
+		this.threadpool = Executors.newCachedThreadPool();
 	}
 
 //	@Override
@@ -96,20 +102,38 @@ public class Maze3dModel extends Observable implements Model {
 			notifyObservers("maze \"" + mazeName + "\" already exists, please choose a different name");
 		}
 		else {
-			new Thread(new Runnable() {
-				
-				@Override
-				public void run() {
-					try {
-						Maze3d maze = new MyMaze3dGenerator().generate(x, y, z);
-						mazes.put(mazeName, maze);
-						setChanged();
-						notifyObservers("maze \"" + mazeName + "\" is ready");
-					} catch (Exception e) {
-						e.printStackTrace();
+			try {
+				Maze3d maze = threadpool.submit(new Callable<Maze3d>() {
+
+					@Override
+					public Maze3d call() throws Exception {
+						return new MyMaze3dGenerator().generate(x, y, z);
 					}
-				}
-			}).start();
+					
+				}).get();
+				mazes.put(mazeName, maze);
+				setChanged();
+				notifyObservers("maze \"" + mazeName + "\" is ready");
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				e.printStackTrace();
+			}
+			
+//			new Thread(new Runnable() {
+//				
+//				@Override
+//				public void run() {
+//					try {
+//						Maze3d maze = new MyMaze3dGenerator().generate(x, y, z);
+//						mazes.put(mazeName, maze);
+//						setChanged();
+//						notifyObservers("maze \"" + mazeName + "\" is ready");
+//					} catch (Exception e) {
+//						e.printStackTrace();
+//					}
+//				}
+//			}).start();
 		}
 	}
 
@@ -343,34 +367,69 @@ public class Maze3dModel extends Observable implements Model {
 	@Override
 	public void solveMaze(String mazeName, String algorithm) {
 		if (mazes.containsKey(mazeName)) {
-			new Thread(new Runnable() {
-				
-				@Override
-				public void run() {
-					Maze3d maze = mazes.get(mazeName);
-					Solution<Position> sol;
-					
-					switch (algorithm) {
-					case "bfs":
-					case "BFS":
-						BFS<Position> bfs = new BFS<Position>();
-						sol = bfs.search(new SearchableMaze(maze));
-						break;
-					case "a*":
-					case "A*":
-						AStar<Position> astar = new AStar<Position>(new MazeAirDistance());
-						sol = astar.search(new SearchableMaze(maze));
-						break;
-					default:
-						setChanged();
-						notifyObservers("algorithm \"" + algorithm + "\" does not exist");
-						return;					
+			Maze3d maze = mazes.get(mazeName);
+			try {
+				Solution<Position> sol = threadpool.submit(new Callable<Solution<Position>>() {
+
+					@Override
+					public Solution<Position> call() throws Exception {
+						switch (algorithm) {
+						case "bfs":
+						case "BFS":
+							BFS<Position> bfs = new BFS<Position>();
+							return bfs.search(new SearchableMaze(maze));
+						case "a*":
+						case "A*":
+							AStar<Position> astar = new AStar<Position>(new MazeAirDistance());
+							return astar.search(new SearchableMaze(maze));
+						default:
+							setChanged();
+							notifyObservers("algorithm \"" + algorithm + "\" does not exist");
+							return null;					
+						}
 					}
+				}).get();
+				if (sol != null) {
 					mazesSolutions.put(mazeName, sol);
 					setChanged();
 					notifyObservers("solution for \"" + mazeName + "\" is ready");
 				}
-			}).start();			
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+//			new Thread(new Runnable() {
+//				
+//				@Override
+//				public void run() {
+//					Maze3d maze = mazes.get(mazeName);
+//					Solution<Position> sol;
+//					
+//					switch (algorithm) {
+//					case "bfs":
+//					case "BFS":
+//						BFS<Position> bfs = new BFS<Position>();
+//						sol = bfs.search(new SearchableMaze(maze));
+//						break;
+//					case "a*":
+//					case "A*":
+//						AStar<Position> astar = new AStar<Position>(new MazeAirDistance());
+//						sol = astar.search(new SearchableMaze(maze));
+//						break;
+//					default:
+//						setChanged();
+//						notifyObservers("algorithm \"" + algorithm + "\" does not exist");
+//						return;					
+//					}
+//					mazesSolutions.put(mazeName, sol);
+//					setChanged();
+//					notifyObservers("solution for \"" + mazeName + "\" is ready");
+//				}
+//			}).start();			
 		}
 		else {
 			setChanged();
