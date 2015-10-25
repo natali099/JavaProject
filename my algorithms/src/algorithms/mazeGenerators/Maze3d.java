@@ -387,6 +387,6 @@ public class Maze3d {
 	 */
 	@Override
 	public int hashCode() {
-		return maze3d.hashCode();
+		return Arrays.deepHashCode(maze3d);
 	}
 }
