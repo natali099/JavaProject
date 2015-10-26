@@ -1,9 +1,11 @@
 package algorithms.mazeGenerators;
 
+import java.io.Serializable;
+
 /**
  * The Class Position.
  */
-public class Position {
+public class Position implements Serializable {
 	
 	/** The x. */
 	private int x;
@@ -13,6 +15,13 @@ public class Position {
 	
 	/** The z. */
 	private int z;
+	
+	/**
+	 * Instantiates a new position.
+	 */
+	public Position() {
+
+	}
 	
 	/**
 	 * Instantiates a new position by x,y,z values.

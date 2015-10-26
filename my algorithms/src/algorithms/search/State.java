@@ -1,11 +1,13 @@
 package algorithms.search;
 
+import java.io.Serializable;
+
 /**
  * The Class State.
  *
  * @param <T> the generic type
  */
-public class State<T> implements Comparable<State<T>> {
+public class State<T> implements Comparable<State<T>>, Serializable {
     
     /** The state. */
     private T state;    // the state represented by a string
@@ -18,6 +20,13 @@ public class State<T> implements Comparable<State<T>> {
 
     /**
      * Instantiates a new state.
+     */
+    public State() {
+
+	}
+    
+    /**
+     * Instantiates a new state by the given T.
      *
      * @param state the state
      */

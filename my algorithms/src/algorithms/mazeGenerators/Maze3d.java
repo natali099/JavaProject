@@ -1,5 +1,6 @@
 package algorithms.mazeGenerators;
 
+import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -7,7 +8,7 @@ import java.util.Arrays;
 /**
  * The Class Maze3d.
  */
-public class Maze3d {
+public class Maze3d implements Serializable {
 	
 	/** The 3D maze represented by a 3 dimensional array. */
 	private int[][][] maze3d;
@@ -27,9 +28,15 @@ public class Maze3d {
 	/** The goal position. */
 	private Position goalPosition;
 	
-	
 	/**
 	 * Instantiates a new maze3d.
+	 */
+	public Maze3d() {
+
+	}
+	
+	/**
+	 * Instantiates a new maze3d by the rows, columns, floors values.
 	 *
 	 * @param rows the number of rows
 	 * @param floors the number of floors

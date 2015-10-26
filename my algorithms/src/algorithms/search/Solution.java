@@ -1,5 +1,6 @@
 package algorithms.search;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 
 /**
@@ -7,7 +8,7 @@ import java.util.LinkedList;
  *
  * @param <T> the generic type
  */
-public class Solution<T> {
+public class Solution<T> implements Serializable {
 	
 	/** The solution path. */
 	private LinkedList<State<T>> path;
