@@ -1,8 +1,16 @@
 package model;
 
+/**
+ * The Interface Model.
+ */
 public interface Model {
 	
-	//byte[] getData();
+	/**
+	 * Gets the data.
+	 *
+	 * @return the data
+	 */
+	byte[] getData();
 	
 	/**
 	 * Displays all files and directories in the given path.
@@ -83,4 +91,9 @@ public interface Model {
 	 * @param mazeName the maze name
 	 */
 	void displaySolution(String mazeName);
+	
+	/**
+	 * Exits carefully.
+	 */
+	void exit();
 }

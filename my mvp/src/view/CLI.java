@@ -64,6 +64,7 @@ public class CLI {
 						else
 							display("\"" + command + "\" command is illegal");
 					}
+					v.doCommand(commands.get("exit"), null);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}

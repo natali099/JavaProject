@@ -21,7 +21,7 @@ public class Presenter implements Observer {
 	private HashMap<String, Command> commands;
 	
 	/**
-	* Instantiates a new presenter.
+	* Instantiates a new presenter with given view and model.
 	* 
 	* @param ui the view
 	* @param m the model
@@ -47,8 +47,11 @@ public class Presenter implements Observer {
 			((Command)args[0]).doCommand((String[])args[1]);
 		}
 		else if (o == m) {
-			ui.display(((String)arg).getBytes());
-			//ui.display(m.getData());
+			if (arg == null)
+				ui.display(m.getData());
+			else
+				ui.display(((String)arg).getBytes());
+			
 		}
 		
 	}
@@ -68,6 +71,7 @@ public class Presenter implements Observer {
 		commands.put("fileSize", new FileSizeCommand());
 		commands.put("solve", new SolveCommand());
 		commands.put("displaySolution", new DisplaySolutionCommand());
+		commands.put("exit", new ExitCommand());
 	}
 	
 	/**
@@ -277,6 +281,23 @@ public class Presenter implements Observer {
 			else
 				ui.display("invalid parameters, please enter a maze name".getBytes());
 		}
+	}
+	
+	/**
+	 * The Class ExitCommand.
+	 */
+	private class ExitCommand implements Command {
+
+		/**
+		 * Runs exit method in the model.
+		 * 
+		 * @see presenter.Command#doCommand(java.lang.String[])
+		 */
+		@Override
+		public void doCommand(String[] args) {
+			m.exit();
+		}
+		
 	}
 
 }
