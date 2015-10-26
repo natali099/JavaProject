@@ -16,6 +16,42 @@ public abstract class CommonSearcher<T> implements Searcher<T> {
  	private int evaluatedNodes;
 
 	 /**
+ 	 * Gets the open list.
+ 	 *
+ 	 * @return the open list
+ 	 */
+ 	public PriorityQueue<State<T>> getOpenList() {
+		return openList;
+	}
+
+	/**
+	 * Sets the open list.
+	 *
+	 * @param openList the new open list
+	 */
+	public void setOpenList(PriorityQueue<State<T>> openList) {
+		this.openList = openList;
+	}
+
+	/**
+	 * Gets the evaluated nodes.
+	 *
+	 * @return the evaluated nodes
+	 */
+	public int getEvaluatedNodes() {
+		return evaluatedNodes;
+	}
+
+	/**
+	 * Sets the evaluated nodes.
+	 *
+	 * @param evaluatedNodes the new evaluated nodes
+	 */
+	public void setEvaluatedNodes(int evaluatedNodes) {
+		this.evaluatedNodes = evaluatedNodes;
+	}
+
+	/**
  	 * Instantiates a new common searcher.
  	 */
  	public CommonSearcher() {

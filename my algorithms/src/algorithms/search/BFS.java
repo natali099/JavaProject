@@ -14,6 +14,24 @@ public class BFS<T> extends CommonSearcher<T> {
 	protected Searchable<T> searchable;
 	
 	/**
+	 * Gets the searchable.
+	 *
+	 * @return the searchable
+	 */
+	public Searchable<T> getSearchable() {
+		return searchable;
+	}
+
+	/**
+	 * Sets the searchable.
+	 *
+	 * @param searchable the new searchable
+	 */
+	public void setSearchable(Searchable<T> searchable) {
+		this.searchable = searchable;
+	}
+
+	/**
 	 * Searches using Best-First Search search algorithm.
 	 *
 	 * @param s the s

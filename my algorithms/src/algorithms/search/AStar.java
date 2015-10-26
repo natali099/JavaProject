@@ -1,5 +1,6 @@
 package algorithms.search;
 
+
 /**
  * The Class AStar.
  *
@@ -12,10 +13,35 @@ public class AStar<T> extends BFS<T> {
 	
 	/**
 	 * Instantiates a new A* searcher.
+	 */
+	public AStar() {
+
+	}
+	
+	/**
+	 * Instantiates a new A* searcher with the given heuristic.
 	 *
 	 * @param h the heuristic
 	 */
 	public AStar(Heuristic<T> h) {
+		this.h = h;
+	}	
+	
+	/**
+	 * Gets the heuristic.
+	 *
+	 * @return the heuristic
+	 */
+	public Heuristic<T> getH() {
+		return h;
+	}
+
+	/**
+	 * Sets the heuristic.
+	 *
+	 * @param h the new heuristic
+	 */
+	public void setH(Heuristic<T> h) {
 		this.h = h;
 	}
 	
