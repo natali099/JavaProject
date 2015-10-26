@@ -17,8 +17,7 @@ public class Test {
 		Properties p = new Properties();
 		p.setGenerator(new MyMaze3dGenerator());
 		p.setHeuristic(new MazeAirDistance());
-		Heuristic<Position> h = p.getHeuristic();
-		p.setSearcher(new AStar<Position>(h));
+		p.setSearcher(new AStar<Position>(p.getHeuristic()));
 
 		
 		try {
