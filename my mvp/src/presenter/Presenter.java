@@ -4,9 +4,11 @@ import java.util.HashMap;
 import java.util.Observable;
 import java.util.Observer;
 
+import model.Maze3dModel;
 import model.Model;
 import view.View;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class Presenter.
  */
@@ -49,8 +51,14 @@ public class Presenter implements Observer {
 		else if (o == m) {
 			if (arg == null)
 				ui.display(m.getData());
-			else
-				ui.display(((String)arg).getBytes());
+			else if (((String)arg).equals("error"))
+				ui.displayError(m.getErrorMessage());
+			else if (((String)arg).equals("maze"))
+				ui.displayMaze(m.getMaze());
+			else if (((String)arg).equals("solution"))
+				ui.displaySolution(m.getSolution());
+			else if (((String)arg).equals("cross"))
+				ui.displayCrossSection(m.getCrossSection());
 			
 		}
 		
@@ -71,6 +79,7 @@ public class Presenter implements Observer {
 		commands.put("fileSize", new FileSizeCommand());
 		commands.put("solve", new SolveCommand());
 		commands.put("displaySolution", new DisplaySolutionCommand());
+		commands.put("setProperties", new SetProperties());
 		commands.put("exit", new ExitCommand());
 	}
 	
@@ -99,7 +108,7 @@ public class Presenter implements Observer {
 			if (args.length == 1)
 				m.dir(args[0]);
 			else
-				ui.display("invalid parameters, please enter a path".getBytes());			
+				ui.displayError("invalid parameters, please enter a path");			
 		}
 	}
 	
@@ -119,7 +128,7 @@ public class Presenter implements Observer {
 			if (args.length == 4)
 				m.generate3dMaze(args[0], Integer.parseInt(args[1]), Integer.parseInt(args[2]), Integer.parseInt(args[3]));
 			else
-				ui.display("invalid parameters, please enter a maze name and 3 dimensions".getBytes());			
+				ui.displayError("invalid parameters, please enter a maze name and 3 dimensions");			
 		}
 	}
 	
@@ -139,7 +148,7 @@ public class Presenter implements Observer {
 			if (args.length == 1)
 				m.displayMaze(args[0]);
 			else
-				ui.display("invalid parameters, please enter a maze name".getBytes());
+				ui.displayError("invalid parameters, please enter a maze name");
 		}
 	}
 	
@@ -159,7 +168,7 @@ public class Presenter implements Observer {
 			if (args.length == 3)
 				m.displayCrossSection(args[0].charAt(0), Integer.parseInt(args[1]), args[2]);
 			else
-				ui.display("invalid parameters, please enter an axis, an index and a maze name".getBytes());		
+				ui.displayError("invalid parameters, please enter an axis, an index and a maze name");		
 		}
 	}
 	
@@ -179,7 +188,7 @@ public class Presenter implements Observer {
 			if (args.length == 2)
 				m.saveMaze(args[0], args[1]);
 			else
-				ui.display("invalid parameters, please enter a maze name and a file name".getBytes());			
+				ui.displayError("invalid parameters, please enter a maze name and a file name");			
 		}
 	}
 	
@@ -199,7 +208,7 @@ public class Presenter implements Observer {
 			if (args.length == 2)
 				m.loadMaze(args[0], args[1]);
 			else
-				ui.display("invalid parameters, please enter a file name and a maze name".getBytes());
+				ui.displayError("invalid parameters, please enter a file name and a maze name");
 		}
 	}
 	
@@ -219,7 +228,7 @@ public class Presenter implements Observer {
 			if (args.length == 1)
 				m.mazeSize(args[0]);
 			else
-				ui.display("invalid parameters, please enter a maze name".getBytes());
+				ui.displayError("invalid parameters, please enter a maze name");
 		}
 	}
 	
@@ -239,7 +248,7 @@ public class Presenter implements Observer {
 			if (args.length == 1)
 				m.fileSize(args[0]);
 			else
-				ui.display("invalid parameters, please enter a maze name".getBytes());
+				ui.displayError("invalid parameters, please enter a maze name");
 		}
 	}
 	
@@ -259,7 +268,7 @@ public class Presenter implements Observer {
 			if (args.length == 2)
 				m.solveMaze(args[0], args[1]);
 			else
-				ui.display("invalid parameters, please enter a maze name and an algorithm".getBytes());
+				ui.displayError("invalid parameters, please enter a maze name and an algorithm");
 		}
 	}
 	
@@ -279,8 +288,27 @@ public class Presenter implements Observer {
 			if (args.length == 1)
 				m.displaySolution(args[0]);
 			else
-				ui.display("invalid parameters, please enter a maze name".getBytes());
+				ui.displayError("invalid parameters, please enter a maze name");
 		}
+	}
+	
+	/**
+	 * The Class SetProperties.
+	 */
+	public class SetProperties implements Command {
+
+		/**
+		 * Runs setProperties method in the model.
+		 *
+		 * @param args the parameters to be passed to the model
+		 * @see presenter.Command#doCommand(java.lang.String[])
+		 */
+		@Override
+		public void doCommand(String[] args) {
+			((Maze3dModel)m).setProperties(args[0]);
+
+		}
+
 	}
 	
 	/**
@@ -290,7 +318,8 @@ public class Presenter implements Observer {
 
 		/**
 		 * Runs exit method in the model.
-		 * 
+		 *
+		 * @param args the parameters to be passed to the model
 		 * @see presenter.Command#doCommand(java.lang.String[])
 		 */
 		@Override

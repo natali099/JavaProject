@@ -14,5 +14,8 @@
     </void>
    </object>
   </void>
+  <void property="view">
+   <object class="view.Maze3dGUIView"/>
+  </void>
  </object>
 </java>

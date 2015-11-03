@@ -1,5 +1,9 @@
 package model;
 
+import algorithms.mazeGenerators.Maze3d;
+import algorithms.mazeGenerators.Position;
+import algorithms.search.Solution;
+
 /**
  * The Interface Model.
  */
@@ -11,6 +15,34 @@ public interface Model {
 	 * @return the data
 	 */
 	byte[] getData();
+	
+	/**
+	 * Gets the error message.
+	 *
+	 * @return the error message
+	 */
+	String getErrorMessage();
+	
+	/**
+	 * Gets the maze.
+	 *
+	 * @return the maze
+	 */
+	Maze3d getMaze();
+	
+	/**
+	 * Gets the solution.
+	 *
+	 * @return the solution
+	 */
+	Solution<Position> getSolution();
+	
+	/**
+	 * Gets the cross section.
+	 *
+	 * @return the cross section
+	 */
+	int[][] getCrossSection();
 	
 	/**
 	 * Displays all files and directories in the given path.
